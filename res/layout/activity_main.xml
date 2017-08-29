@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.shuiyes.mocklocation.MainActivity" >
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="true" />
+
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:background="#44000000"
+        android:textColor="#4078c0"
+        android:gravity="center"
+        android:text="@string/loading" />
+
+    <Button
+        android:id="@+id/mock_location"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp"
+        android:background="@drawable/circle"
+        android:onClick="mockLocation"
+        android:enabled="false"
+        android:text="@string/mock" />
+
+    <ImageButton
+        android:id="@+id/ib_search"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:layout_alignParentRight="true"
+        android:onClick="searchLocation"
+        android:background="@drawable/search"
+        android:layout_margin="2dp"/>
+
+</RelativeLayout>

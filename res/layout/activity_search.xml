@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.shuiyes.mocklocation.SearchActivity" >
+        
+        <EditText
+        android:id="@+id/et_city"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:textColor="#4078c0"
+        android:textColorHint="#aaa"
+        android:hint="城市" />
+        
+        <View
+        android:layout_width="1dp"
+        android:layout_height="35dp"
+        android:background="#ccc"/>
+        
+	<AutoCompleteTextView
+        android:id="@+id/et_keyword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#4078c0"
+        android:textColorHint="#aaa"
+        android:hint="新街口"/>
+        
+</LinearLayout>
