@@ -21,4 +21,9 @@ public class NumberUtils {
         return new Random().nextInt(2)+3;
     }
 
+    public static int random100(){
+        return new Random().nextInt(100);
+    }
+
+    
 }

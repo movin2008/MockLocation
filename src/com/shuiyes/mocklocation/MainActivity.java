@@ -270,8 +270,7 @@ public class MainActivity extends Activity implements OnMapClickListener, OnGetG
     }
 
     private LocationManager mLocationManager;
-    /** 要模拟的地理位置 Provider (GPS/network/etc) */
-    private List<String> mMockProviders;
+    
     private final Handler mHandler = new Handler();
     /** 穿越线程(需要不停的设置虚拟坐标) */
     private final RunnableMockLocation mRunnableMockLocation = new RunnableMockLocation();
@@ -281,17 +280,29 @@ public class MainActivity extends Activity implements OnMapClickListener, OnGetG
             // 模拟位置（addTestProvider成功的前提下）
             for (String providerStr : mMockProviders) {
                 Location mockLocation = new Location(providerStr);
-                mockLocation.setLatitude(Double.parseDouble(NumberUtils.numFormat(mMockLatLng.latitude)));     // 维度（度）
-                mockLocation.setLongitude(Double.parseDouble(NumberUtils.numFormat(mMockLatLng.longitude)));   // 经度（度）
-                mockLocation.setAltitude(30);                                                                  // 高程（米）
-                mockLocation.setBearing(180);                                                                  // 方向（度）
-                mockLocation.setSpeed(0);                                                                      // 速度（米/秒）
+                float r = NumberUtils.random100();
+                mockLocation.setLatitude(Double.parseDouble(NumberUtils.numFormat(mMockLatLng.latitude+(r/10000))));     // 维度（度）
+                r = NumberUtils.random100();
+                mockLocation.setLongitude(Double.parseDouble(NumberUtils.numFormat(mMockLatLng.longitude+(r/10000))));   // 经度（度）
+                mockLocation.setAltitude(NumberUtils.random()*10);                                             // 高程（米）
+                mockLocation.setBearing(NumberUtils.random()*10+140);                                                                  // 方向（度）
+                mockLocation.setSpeed(NumberUtils.random());                                                                      // 速度（米/秒）
                 mockLocation.setAccuracy((mSysytemAccuracy != 0)?mSysytemAccuracy:NumberUtils.random()*10);    // 精度（米）
                 mockLocation.setTime(new Date().getTime());                                                    // 本地时间
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                     mockLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
                 }
-                mLocationManager.setTestProviderLocation(providerStr, mockLocation);
+                
+                LocationProvider provider = mLocationManager.getProvider(providerStr);
+                if (provider != null) {
+                	//mLocationManager.removeTestProvider(providerStr);
+//                	mLocationManager.addTestProvider(provider.getName(), provider.requiresNetwork(), provider.requiresSatellite()
+//                            , provider.requiresCell(), provider.hasMonetaryCost(), provider.supportsAltitude(), provider.supportsSpeed()
+//                            , provider.supportsBearing(), provider.getPowerRequirement(), provider.getAccuracy());
+//                    mLocationManager.setTestProviderEnabled(providerStr, true);
+//                    mLocationManager.setTestProviderStatus(providerStr, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
+                	mLocationManager.setTestProviderLocation(providerStr, mockLocation);
+                }
             }
             if(mIsMock) mHandler.postDelayed(mRunnableMockLocation,50);
         }
@@ -300,29 +311,38 @@ public class MainActivity extends Activity implements OnMapClickListener, OnGetG
     private float mSysytemAccuracy = 0;
     private double mSysytemLat = 0;
     private double mSysytemLng = 0;
+    
+    /** 要模拟的地理位置 Provider (GPS/network/etc) */
+    private List<String> mMockProviders = new ArrayList<String>();
+    private List<String> mLocProviders = new ArrayList<String>();
     private void init() {
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mConnectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        mMockProviders = new ArrayList<String>();
         mMockProviders.add(LocationManager.GPS_PROVIDER);
         // 基站定位无效！！！
-        //mMockProviders.add(LocationManager.NETWORK_PROVIDER);
+        mMockProviders.add(LocationManager.NETWORK_PROVIDER);
+        
+        mLocProviders.addAll(mMockProviders);
+        mLocProviders.add(LocationManager.PASSIVE_PROVIDER);
+        
     }
 
     /** 
      * 通过GPS获取位置(获取不到位置，原因未知)
      */
     private void getLocation() {
-        Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (location != null) {
-            Log.e(TAG, "系统定位： "+location.toString());
-            mSysytemAccuracy = location.getAccuracy();
-            mSysytemLat = location.getLatitude();
-            mSysytemLng = location.getLongitude();
-        }else{
-            Log.e(TAG, "定位失败！！！");
+        for (String providerStr : mLocProviders) {
+        	Location location = mLocationManager.getLastKnownLocation(providerStr);
+        	location = mLocationManager.getLastKnownLocation(providerStr);
+        	if (location != null) {
+        		Log.e(TAG, providerStr+"： "+location.toString());
+        		mSysytemAccuracy = location.getAccuracy();
+        		mSysytemLat = location.getLatitude();
+        		mSysytemLng = location.getLongitude();
+        	}else{
+        		Log.e(TAG, providerStr+"定位失败！！！");
+        	}
         }
     }
 
@@ -401,18 +421,19 @@ public class MainActivity extends Activity implements OnMapClickListener, OnGetG
 
     private String[] mPermissions = {"android.permission.ACCESS_MOCK_LOCATION"};
     private boolean checkPermissionsGranted() {
-        if(Build.VERSION.SDK_INT < 21) return true;;
-        int flag = 0;
-        for (int i = 0; i < mPermissions.length; i++) {
-            String p = mPermissions[i];
-            final boolean result = this.checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED;
-            if (!result){
-                this.requestPermissions(new String[] { p }, 0);
-            }else{
-                flag++;
-            }
-        }
-        return flag == mPermissions.length;
+//        if(Build.VERSION.SDK_INT < 21) return true;;
+//        int flag = 0;
+//        for (int i = 0; i < mPermissions.length; i++) {
+//            String p = mPermissions[i];
+//            final boolean result = this.checkSelfPermission(p) == PackageManager.PERMISSION_GRANTED;
+//            if (!result){
+//                this.requestPermissions(new String[] { p }, 0);
+//            }else{
+//                flag++;
+//            }
+//        }
+//        return flag == mPermissions.length;
+    	return true;
     }
 
     private ConnectivityManager mConnectivityManager = null;
